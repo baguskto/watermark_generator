@@ -41681,8 +41681,8 @@ A.Hi.prototype={
 gq(a){return a.length}}
 A.Lt.prototype={}
 A.L_.prototype={
-N(a){var s=null,r="/watermark_generator/",q=A.aji(s,B.iL,s)
-return new A.w6(new A.l2(s),A.aD([r,new A.a8H()],t.N,t.Ab),r,"Marky - Image Marker",q,s)}}
+N(a){var s=null,r=A.aji(s,B.iL,s)
+return new A.w6(new A.l2(s),A.aD(["/home",new A.a8H()],t.N,t.Ab),"/home","Marky - Image Marker",r,s)}}
 A.a8H.prototype={
 $1(a){return new A.l2(null)},
 $S:301}
