@@ -9,7 +9,6 @@ import 'dart:math' as math;
 import 'package:intl/intl.dart';
 import 'package:url_strategy/url_strategy.dart';
 
-
 void main() {
   setPathUrlStrategy();
   runApp(WatermarkApp());
@@ -45,9 +44,9 @@ class _ImageWatermarkPageState extends State<ImageWatermarkPage> {
   List<Uint8List?> _watermarkedImageDataList = [];
   final TextEditingController _watermarkTextController =
       TextEditingController();
-  List<String> _watermarkedImageNames = [];  // This keeps track of the names of watermarked images.
-  double _watermarkOpacity = 0.7;  // default opacity value
-
+  List<String> _watermarkedImageNames =
+      []; // This keeps track of the names of watermarked images.
+  double _watermarkOpacity = 0.7; // default opacity value
 
   @override
   void initState() {
@@ -102,7 +101,6 @@ class _ImageWatermarkPageState extends State<ImageWatermarkPage> {
                 },
                 decoration: InputDecoration(labelText: 'Watermark Text'),
               ),
-
               const Padding(
                 padding: EdgeInsets.only(top: 8.0, bottom: 16.0),
                 child: Text(
@@ -114,7 +112,6 @@ class _ImageWatermarkPageState extends State<ImageWatermarkPage> {
                   textAlign: TextAlign.start,
                 ),
               ),
-
               Slider(
                 value: _watermarkOpacity,
                 onChanged: (double newValue) {
@@ -132,7 +129,6 @@ class _ImageWatermarkPageState extends State<ImageWatermarkPage> {
                 divisions: 100,
                 label: "Opacity: ${(_watermarkOpacity * 100).toInt()}%",
               ),
-
               const Padding(
                 padding: EdgeInsets.only(top: 8.0, bottom: 16.0),
                 child: Text(
@@ -177,47 +173,54 @@ class _ImageWatermarkPageState extends State<ImageWatermarkPage> {
                   child: Text("Apply Watermark to All"),
                 ),
               ),
+              if (_watermarkedImageDataList.length > 1)
+                Column(
+                  children: [
+                    SizedBox(height: 12,),
+                    ElevatedButton(
+                      onPressed: _downloadAllImages,
+                      child: const Text("Download All Images"),
+                    ),
+                  ],
+                ),
               if (_watermarkedImageDataList.isNotEmpty)
-                ElevatedButton(
-                  onPressed: _downloadAllImages,
-                  child: const Text("Download All Images"),
-                ),
-              GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  mainAxisSpacing: 10,
-                  crossAxisSpacing: 10,
-                  childAspectRatio:
-                      1, // This maintains the item's width and height ratio. Adjust if necessary.
-                ),
-                itemCount: _watermarkedImageDataList.length,
-                shrinkWrap: true,
-                // This will fit the GridView's height to its content
-                physics: NeverScrollableScrollPhysics(),
-                // Disable GridView's own scroll
-                itemBuilder: (context, index) {
-                  return Stack(
-                    children: [
-                      AspectRatio(
-                        aspectRatio: 1,
-                        child: Image.memory(
-                          _watermarkedImageDataList[index]!,
-                          fit: BoxFit.contain,
+                GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 10,
+                    childAspectRatio:
+                        1, // This maintains the item's width and height ratio. Adjust if necessary.
+                  ),
+                  itemCount: _watermarkedImageDataList.length,
+                  shrinkWrap: true,
+                  // This will fit the GridView's height to its content
+                  physics: NeverScrollableScrollPhysics(),
+                  // Disable GridView's own scroll
+                  itemBuilder: (context, index) {
+                    return Stack(
+                      children: [
+                        AspectRatio(
+                          aspectRatio: 1,
+                          child: Image.memory(
+                            _watermarkedImageDataList[index]!,
+                            fit: BoxFit.contain,
+                          ),
                         ),
-                      ),
-                      Positioned(
-                        top: 5,
-                        right: 5,
-                        child: IconButton(
-                          icon: Icon(Icons.download_sharp, color: Colors.grey),
-                          onPressed: () => _downloadSingleImage(
-                              _watermarkedImageDataList[index]!, index),
+                        Positioned(
+                          top: 5,
+                          right: 5,
+                          child: IconButton(
+                            icon:
+                                Icon(Icons.download_sharp, color: Colors.grey),
+                            onPressed: () => _downloadSingleImage(
+                                _watermarkedImageDataList[index]!, index),
+                          ),
                         ),
-                      ),
-                    ],
-                  );
-                },
-              ),
+                      ],
+                    );
+                  },
+                ),
             ],
           ),
         ),
@@ -292,8 +295,6 @@ class _ImageWatermarkPageState extends State<ImageWatermarkPage> {
     return 'marky_$timestamp\_$_nameCounter.png';
   }
 
-
-
   Set<String> _processedImageNames =
       {}; // To track images we've already processed
 
@@ -313,8 +314,7 @@ class _ImageWatermarkPageState extends State<ImageWatermarkPage> {
         final recorder = ui.PictureRecorder();
         final canvas = Canvas(
             recorder,
-            Rect.fromPoints(
-                Offset(0, 0),
+            Rect.fromPoints(Offset(0, 0),
                 Offset(image.width.toDouble(), image.height.toDouble())));
 
         // Draw the original image onto the canvas
@@ -324,7 +324,8 @@ class _ImageWatermarkPageState extends State<ImageWatermarkPage> {
         final style = ui.TextStyle(
           color: Colors.white.withOpacity(_watermarkOpacity),
           fontSize: 50.0,
-          background: Paint()..color = Colors.black.withOpacity(_watermarkOpacity),
+          background: Paint()
+            ..color = Colors.black.withOpacity(_watermarkOpacity),
         );
 
         final paragraphBuilder = ui.ParagraphBuilder(ui.ParagraphStyle())
@@ -335,7 +336,7 @@ class _ImageWatermarkPageState extends State<ImageWatermarkPage> {
 
         // Calculate the positions for the watermark based on estrangementValue
         final List<Offset> positions =
-        calculateWatermarkPositions(image, _estrangementValue);
+            calculateWatermarkPositions(image, _estrangementValue);
 
         for (var position in positions) {
           // Save the current state of the canvas
@@ -359,7 +360,8 @@ class _ImageWatermarkPageState extends State<ImageWatermarkPage> {
         final pngBytes = byteData!.buffer.asUint8List();
 
         // Calculate name for the watermarked image based on the original index and estrangement value
-        String imageName = "watermarked_${i}_${_estrangementValue.toStringAsFixed(2)}";
+        String imageName =
+            "watermarked_${i}_${_estrangementValue.toStringAsFixed(2)}";
 
         // If not, add the new watermarked image to the list
         newWatermarkedImageNames.add(imageName);
