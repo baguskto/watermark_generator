@@ -23,6 +23,7 @@ class WatermarkApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: ImageWatermarkPage(),
+      debugShowCheckedModeBanner: false,
       routes: {
         '/home': (context) => ImageWatermarkPage(),
       },
@@ -61,45 +62,112 @@ class _ImageWatermarkPageState extends State<ImageWatermarkPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Marky")),
+      appBar: AppBar(
+        title: const Text("Marky"),
+        automaticallyImplyLeading: false,
+        actions: [
+          if (_imageDataList.isNotEmpty)
+            IconButton(
+              onPressed: _uploadImages,
+              icon: const Icon(Icons.add_photo_alternate_outlined),
+              tooltip: "Upload Images",
+            ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              ElevatedButton(
-                onPressed: _uploadImages,
-                child: Text("Upload Images"),
-              ),
-              if (_imageDataList.isNotEmpty)
-                Container(
-                  height: 400,
-                  child: GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 5,
-                      mainAxisSpacing: 10,
-                      crossAxisSpacing: 10,
-                    ),
-                    itemCount: _imageDataList.length,
-                    itemBuilder: (context, index) {
-                      return AspectRatio(
-                        aspectRatio: 1, // This will be a square container
-                        child: Image.memory(
-                          _imageDataList[index]!,
-                          fit: BoxFit.contain,
+              _imageDataList.isNotEmpty
+                  ? Container(
+                      color: Colors.black12,
+                      height: 400,
+                      child: _watermarkedImageDataList.isNotEmpty
+                          ? GridView.builder(
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                mainAxisSpacing: 10,
+                                crossAxisSpacing: 10,
+                                childAspectRatio:
+                                    1, // This maintains the item's width and height ratio. Adjust if necessary.
+                              ),
+                              itemCount: _watermarkedImageDataList.length,
+                              shrinkWrap: true,
+                              // This will fit the GridView's height to its content
+                              physics: NeverScrollableScrollPhysics(),
+                              // Disable GridView's own scroll
+                              itemBuilder: (context, index) {
+                                return Stack(
+                                  children: [
+                                    AspectRatio(
+                                      aspectRatio: 1,
+                                      child: Image.memory(
+                                        _watermarkedImageDataList[index]!,
+                                        fit: BoxFit.contain,
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 5,
+                                      right: 5,
+                                      child: IconButton(
+                                        icon: Icon(Icons.download_sharp,
+                                            color: Colors.grey),
+                                        onPressed: () => _downloadSingleImage(
+                                            _watermarkedImageDataList[index]!,
+                                            index),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            )
+                          : GridView.builder(
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 5,
+                                mainAxisSpacing: 10,
+                                crossAxisSpacing: 10,
+                              ),
+                              itemCount: _imageDataList.length,
+                              itemBuilder: (context, index) {
+                                return AspectRatio(
+                                  aspectRatio:
+                                      1, // This will be a square container
+                                  child: Image.memory(
+                                    _imageDataList[index]!,
+                                    fit: BoxFit.contain,
+                                  ),
+                                );
+                              },
+                            ),
+                    )
+                  : Container(
+                      color: Colors.black12,
+                      height: 400,
+                      child: Center(
+                        child: IconButton(
+                          onPressed: _uploadImages,
+                          icon: Icon(Icons.add_photo_alternate_outlined),
+                          tooltip: "Upload Images",
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: TextField(
+                  controller: _watermarkTextController,
+                  onChanged: (text) {
+                    setState(() {
+                      _watermarkText = text;
+                    });
+                  },
+                  onEditingComplete: (){
+                    _applyWatermarkToAll();
+                  },
+                  decoration: const InputDecoration(labelText: 'Watermark Text'),
                 ),
-              TextField(
-                controller: _watermarkTextController,
-                onChanged: (text) {
-                  setState(() {
-                    _watermarkText = text;
-                  });
-                },
-                decoration: InputDecoration(labelText: 'Watermark Text'),
               ),
               const Padding(
                 padding: EdgeInsets.only(top: 8.0, bottom: 16.0),
@@ -157,70 +225,40 @@ class _ImageWatermarkPageState extends State<ImageWatermarkPage> {
                 divisions: 60,
                 label: "${_estrangementValue * 100}% density",
               ),
-              GestureDetector(
-                onTap: () {
-                  if (_imageDataList.isEmpty ||
-                      _processedImageNames.length == _imageDataList.length) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text('No images left to be marked!')));
-                  }
-                },
-                child: ElevatedButton(
-                  onPressed: _imageDataList.isEmpty ||
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      if (_imageDataList.isEmpty ||
+                          _processedImageNames.length == _imageDataList.length) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text('No images left to be marked!')));
+                      }
+                    },
+                    child: ElevatedButton(
+                      onPressed: _imageDataList.isEmpty ||
                           _processedImageNames.length == _imageDataList.length
-                      ? null
-                      : _applyWatermarkToAll,
-                  child: Text("Apply Watermark to All"),
-                ),
-              ),
-              if (_watermarkedImageDataList.length > 1)
-                Column(
-                  children: [
-                    SizedBox(height: 12,),
-                    ElevatedButton(
-                      onPressed: _downloadAllImages,
-                      child: const Text("Download All Images"),
+                          ? null
+                          : _applyWatermarkToAll,
+                      child: Text("Apply Watermark to All"),
                     ),
-                  ],
-                ),
-              if (_watermarkedImageDataList.isNotEmpty)
-                GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    mainAxisSpacing: 10,
-                    crossAxisSpacing: 10,
-                    childAspectRatio:
-                        1, // This maintains the item's width and height ratio. Adjust if necessary.
                   ),
-                  itemCount: _watermarkedImageDataList.length,
-                  shrinkWrap: true,
-                  // This will fit the GridView's height to its content
-                  physics: NeverScrollableScrollPhysics(),
-                  // Disable GridView's own scroll
-                  itemBuilder: (context, index) {
-                    return Stack(
+                  if (_watermarkedImageDataList.length > 1)
+                    Column(
                       children: [
-                        AspectRatio(
-                          aspectRatio: 1,
-                          child: Image.memory(
-                            _watermarkedImageDataList[index]!,
-                            fit: BoxFit.contain,
-                          ),
+                        SizedBox(
+                          height: 12,
                         ),
-                        Positioned(
-                          top: 5,
-                          right: 5,
-                          child: IconButton(
-                            icon:
-                                Icon(Icons.download_sharp, color: Colors.grey),
-                            onPressed: () => _downloadSingleImage(
-                                _watermarkedImageDataList[index]!, index),
-                          ),
+                        ElevatedButton(
+                          onPressed: _downloadAllImages,
+                          child: const Text("Download All Images"),
                         ),
                       ],
-                    );
-                  },
-                ),
+                    ),
+                ],
+              ),
+              SizedBox(height: 60,),
             ],
           ),
         ),
