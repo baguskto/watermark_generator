@@ -22,7 +22,7 @@ class WatermarkApp extends StatelessWidget {
       ),
       home: ImageWatermarkPage(),
       routes: {
-        '/watermark_generator/': (context) => ImageWatermarkPage(),
+        '/home': (context) => ImageWatermarkPage(),
       },
       initialRoute: '/home',
     );
