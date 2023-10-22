@@ -1,14 +1,17 @@
-import 'dart:async';
 import 'dart:html';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+import 'dart:ui_web';
 import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
 import 'package:intl/intl.dart';
+import 'package:url_strategy/url_strategy.dart';
+
 
 void main() {
+  setPathUrlStrategy();
   runApp(WatermarkApp());
 }
 
