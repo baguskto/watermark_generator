@@ -1,4 +1,4 @@
-package com.ortechstra.photomarker.personal_project
+package com.ortechstra.photomarker.marky
 
 import io.flutter.embedding.android.FlutterActivity
 
