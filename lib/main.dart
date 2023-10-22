@@ -6,7 +6,6 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
-
 void main() {
   runApp(WatermarkApp());
 }
@@ -33,6 +32,7 @@ class _ImageWatermarkPageState extends State<ImageWatermarkPage> {
   Uint8List? _imageData;
   String _watermarkText = "Watermark";
   Uint8List? _watermarkedImageData;
+  double _estrangementValue = 0.48;
 
   @override
   Widget build(BuildContext context) {
@@ -47,8 +47,7 @@ class _ImageWatermarkPageState extends State<ImageWatermarkPage> {
                 onPressed: _uploadImage,
                 child: Text("Upload Image"),
               ),
-              if (_imageData != null)
-                Image.memory(_imageData!),
+              if (_imageData != null) Image.memory(_imageData!),
               TextField(
                 onChanged: (text) {
                   setState(() {
@@ -56,6 +55,35 @@ class _ImageWatermarkPageState extends State<ImageWatermarkPage> {
                   });
                 },
                 decoration: InputDecoration(labelText: 'Watermark Text'),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(top: 8.0, bottom: 16.0),
+                child: Text(
+                  "Watermark Density",
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.start,
+                ),
+              ),
+              Slider(
+                value: _estrangementValue,
+                onChangeEnd: ((double newValue) {
+                  setState(() {
+                    // _estrangementValue = newValue;
+                    _applyWatermark;
+                  });
+                }),
+                onChanged: (double newValue) {
+                  setState(() {
+                    _estrangementValue = newValue;
+                  });
+                },
+                min: 0.0,
+                max: 0.6,
+                divisions: 60,
+                label: "${_estrangementValue * 100}% density",
               ),
               ElevatedButton(
                 onPressed: _applyWatermark,
@@ -103,7 +131,10 @@ class _ImageWatermarkPageState extends State<ImageWatermarkPage> {
     final image = frame.image;
 
     final recorder = ui.PictureRecorder();
-    final canvas = Canvas(recorder, Rect.fromPoints(Offset(0, 0), Offset(image.width.toDouble(), image.height.toDouble())));
+    final canvas = Canvas(
+        recorder,
+        Rect.fromPoints(Offset(0, 0),
+            Offset(image.width.toDouble(), image.height.toDouble())));
 
     // Draw the original image onto the canvas
     canvas.drawImage(image, Offset.zero, Paint());
@@ -121,12 +152,14 @@ class _ImageWatermarkPageState extends State<ImageWatermarkPage> {
       ..layout(ui.ParagraphConstraints(width: image.width.toDouble()));
 
     // List of positions for the watermark
-    final List<Offset> positions = [
-      Offset(0, image.height.toDouble() * 0.75),   // Near bottom-left
-      Offset(0, image.height.toDouble() * 0.25),   // Near top-left
-      Offset(image.width.toDouble() * 0.5, image.height.toDouble()),   // Near bottom-right
-      Offset(image.width.toDouble() * 0.5, 0),     // Near top-right
-    ];
+    // final List<Offset> positions = [
+    //   Offset(0, image.height.toDouble() * 0.75),   // Near bottom-left
+    //   Offset(0, image.height.toDouble() * 0.25),   // Near top-left
+    //   Offset(image.width.toDouble() * 0.5, image.height.toDouble()),   // Near bottom-right
+    //   Offset(image.width.toDouble() * 0.5, 0),     // Near top-right
+    // ];
+
+    final positions = calculateWatermarkPositions(image, _estrangementValue);
 
     for (var position in positions) {
       // Save the current state of the canvas
@@ -137,7 +170,8 @@ class _ImageWatermarkPageState extends State<ImageWatermarkPage> {
       canvas.rotate(-45 * (math.pi / 180));
 
       // Draw the watermark text on the canvas
-      canvas.drawParagraph(paragraph, Offset(0, -25));  // Adjust the vertical offset as needed
+      canvas.drawParagraph(
+          paragraph, Offset(0, -25)); // Adjust the vertical offset as needed
 
       // Restore the canvas state to its original
       canvas.restore();
@@ -154,6 +188,30 @@ class _ImageWatermarkPageState extends State<ImageWatermarkPage> {
     });
   }
 
+  List<Offset> calculateWatermarkPositions(
+      ui.Image image, double estrangementValue) {
+    List<Offset> positions = [];
+
+    // Calculate the number of watermark positions based on estrangementValue
+    // The factor "10" can be adjusted based on your preferred density.
+    int numberOfPositions = (estrangementValue * 10).toInt();
+
+    // Distribute the watermarks across the image
+    for (int i = 0; i <= numberOfPositions; i++) {
+      double xFactor = i / numberOfPositions;
+      for (int j = 0; j <= numberOfPositions; j++) {
+        double yFactor = j / numberOfPositions;
+        positions.add(Offset(
+          xFactor * image.width.toDouble(),
+          yFactor * image.height.toDouble(),
+        ));
+      }
+    }
+
+    return positions;
+  }
+
+// ...
 
   _downloadImage() {
     final blob = Blob([_watermarkedImageData]);
