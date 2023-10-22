@@ -16,11 +16,15 @@ class WatermarkApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Web Image Watermark',
+      title: 'Marky - Image Marker',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
       home: ImageWatermarkPage(),
+      routes: {
+        '/watermark_generator/': (context) => ImageWatermarkPage(),
+      },
+      initialRoute: '/watermark_generator/',
     );
   }
 }
