@@ -1,13 +1,16 @@
-# Watermark Generator
+# Marky - Watermark Generator
 
-Watermark Generator is a Flutter-based web application that allows users to upload an image and add a watermark to it. The watermarked image can then be downloaded for use. The watermark can be placed in multiple positions, following a diagonal orientation from the bottom-left to the top-right.
+Marky - Watermark Generator is a Flutter-based web application designed for easily applying watermarks to images. With options for customization and multiple image uploads, it's an all-in-one solution for branding and copyrighting your photos.
 
 ## Features
 
-- Upload images in various formats.
-- Apply watermarks in a diagonal orientation.
-- Download the watermarked image.
-- Simple and intuitive UI.
+- **Multiple Image Uploads**: Upload several images at once and apply watermarks to them in a batch.
+- **Diagonal Watermark Orientation**: Watermarks are strategically placed in a diagonal orientation from bottom-left to top-right for a stylish look.
+- **Customizable Watermark Density**: Use the slider to adjust the frequency/density of the watermark across the image.
+- **Customizable Watermark Opacity**: Determine the transparency of your watermark for optimal visibility.
+- **Dynamic Initial Watermark Text**: The watermark text field is pre-filled with a dynamic message based on the current date, but you're free to customize it to your needs.
+- **Download Options**: Download watermarked images individually or in bulk, offering flexibility for various use cases.
+- **Simple UI**: An intuitive user interface ensures that users, even without technical expertise, can easily watermark their images.
 
 ## Requirements
 
@@ -15,32 +18,30 @@ Watermark Generator is a Flutter-based web application that allows users to uplo
 
 ## Setup
 
-1. **Install Flutter**: If you haven't already, follow the [official guide](https://flutter.dev/docs/get-started/install) to set up Flutter on your machine.
+1. **Install Flutter**: Follow the [official guide](https://flutter.dev/docs/get-started/install) to set up Flutter on your machine.
 2. **Clone the Repository**:
-
    ```bash
    git clone [repository_url]
    cd [repository_directory]
    ```
 3. **Run the Application**:
-
    ```bash
    flutter run -d web
    ```
 
-   This will start the development server, and the Watermark Generator should be accessible via a web browser.
-
 ## Usage
 
-1. **Upload an Image**: Click on the "Upload Image" button and select your desired image.
-2. **Enter Watermark Text**: Use the input field to specify the watermark text.
-3. **Apply Watermark**: Click the "Apply Watermark" button. The watermark will be applied to the image in multiple positions.
-4. **Download the Image**: Once watermarked, you can download the image by clicking the "Download Image" button.
+1. **Upload Images**: Click on the "Upload Image" button and select one or multiple images.
+2. **Set Watermark Text**: A default text, based on the current date and a preset message, will be provided. However, you can customize this text as per your requirements.
+3. **Adjust Watermark Density**: Use the density slider to change the frequency of the watermark across your image.
+4. **Adjust Watermark Opacity**: Use the opacity slider to modify the transparency of the watermark.
+5. **Apply Watermark**: After setting your preferences, click on the "Apply Watermark" button. The watermark will be applied to all the uploaded images.
+6. **Download the Images**: Post watermarking, you have the option to download images individually or all at once using the respective buttons.
 
 ## Contributing
 
-Contributions, issues, and feature requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+Contributions, issues, and feature requests are welcome. For major changes, please open an issue first to discuss your proposed change.
 
 ## License
 
-This project is open source and available under the [MIT License](https://choosealicense.com/licenses/mit/).
+This project is open-source and available under the [MIT License](https://choosealicense.com/licenses/mit/).
